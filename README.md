@@ -14,6 +14,13 @@ mv configure.scan configure.ac
 ```
 
 ## Let's go
+This does all of the commands in the next section for you.
+```
+./bootstrap.sh
+```
+
+
+## Help me do it manually
 ```
 mkdir m4
 ```
