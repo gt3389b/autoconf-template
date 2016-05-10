@@ -5,9 +5,13 @@ autoscan
 
 mv configure.scan configure.ac
 
+mkdir m4
 
 aclocal
+
 autoconf
+
 glibtoolize
+
 automake --add-missing
 

@@ -3,9 +3,9 @@
 
 AC_PREREQ([2.69])
 AC_INIT([example], [1.0], [gt3389b@gmail.com])
-AM_INIT_AUTOMAKE(example, 1.0)
 AC_CONFIG_SRCDIR([src])
 AC_CONFIG_HEADERS([config.h])
+AM_INIT_AUTOMAKE
 
 LT_INIT
 AC_CONFIG_MACRO_DIRS([m4])
