@@ -13,5 +13,7 @@ autoconf
 
 glibtoolize
 
+autoheader
+
 automake --add-missing
 
