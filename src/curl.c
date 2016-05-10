@@ -3,11 +3,8 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <semaphore.h>
 #include <curl/curl.h>
 
-#include "b64.h"
-//#include "utils.h"
 #include "curl.h"
 
 CURL *gCurlCtx = NULL;
@@ -44,23 +41,10 @@ write_func( void *ptr, size_t size, size_t nmemb, void *user_data)
    {
    char *data = (char *)ptr;
    tCurl_Response *uData = (tCurl_Response *)user_data;
-   char *signature;
 
-   if (strstr(data, "SUCCESS"))
-      {
-      if((signature = strstr(data, "SIGNATURE:")) != NULL)
-         signature+=10;
-      else if((signature = strstr(data, "PUBLIC_KEY:")) != NULL)
-         signature+=11;
-
-      uData->buf_len = decode((unsigned char *)signature, strlen(signature), (unsigned char *)uData->buf, uData->buf_size);
-      }
-   else
-      {
-      printf("%s\n",data);
-      fflush(stdout);
-      uData->buf_len = 0;
-      }
+   printf("%s\n",data);
+   fflush(stdout);
+   uData->buf_len = 0;
    
    return size*nmemb;
    }
@@ -124,19 +108,37 @@ make_curl_request(char *url, char *postdata, char *certFilename, char *outBuf, i
          continue;
          }
 
-      if((ccode = curl_easy_setopt(gCurlCtx, CURLOPT_POSTFIELDS, postdata)) != CURLE_OK)
-         {
-         printf("Error (line %d): %s\n", __LINE__, curl_easy_strerror(ccode));
-         continue;
-         }
+#if 0
+      if (postdata) {
+         if((ccode = curl_easy_setopt(gCurlCtx, CURLOPT_POSTFIELDS, postdata)) != CURLE_OK)
+            {
+            printf("Error (line %d): %s\n", __LINE__, curl_easy_strerror(ccode));
+            continue;
+            }
 
-      if((ccode = curl_easy_setopt(gCurlCtx, CURLOPT_CAINFO, certFilename)) != CURLE_OK )
-         {
-         printf("Error (line %d): %s\n", __LINE__, curl_easy_strerror(ccode));
-         continue;
-         }
+         if((ccode = curl_easy_setopt(gCurlCtx, CURLOPT_GET, TRUE)) != CURLE_OK)
+            {
+            printf("Error (line %d): %s\n", __LINE__, curl_easy_strerror(ccode));
+            continue;
+            }
+      }
+
+      if (certFilename) {
+         if((ccode = curl_easy_setopt(gCurlCtx, CURLOPT_CAINFO, certFilename)) != CURLE_OK )
+            {
+            printf("Error (line %d): %s\n", __LINE__, curl_easy_strerror(ccode));
+            continue;
+            }
+      }
 
       if((ccode = curl_easy_setopt(gCurlCtx, CURLOPT_SSL_VERIFYPEER, 1)) != CURLE_OK)
+         {
+         printf("Error (line %d): %s\n", __LINE__, curl_easy_strerror(ccode));
+         continue;
+         }
+#endif
+
+      if((ccode = curl_easy_setopt(gCurlCtx, CURLOPT_USERAGENT, "Autoconf example")) != CURLE_OK)
          {
          printf("Error (line %d): %s\n", __LINE__, curl_easy_strerror(ccode));
          continue;
@@ -150,11 +152,6 @@ make_curl_request(char *url, char *postdata, char *certFilename, char *outBuf, i
             continue;
             }
 
-      if((ccode = curl_easy_setopt(gCurlCtx, CURLOPT_POST, TRUE)) != CURLE_OK)
-         {
-         printf("Error (line %d): %s\n", __LINE__, curl_easy_strerror(ccode));
-         continue;
-         }
 
       if((ccode = curl_easy_perform(gCurlCtx)) != CURLE_OK)
          {
