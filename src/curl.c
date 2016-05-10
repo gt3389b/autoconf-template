@@ -41,10 +41,15 @@ write_func( void *ptr, size_t size, size_t nmemb, void *user_data)
    {
    char *data = (char *)ptr;
    tCurl_Response *uData = (tCurl_Response *)user_data;
+   int len = size*nmemb;;
 
-   printf("%s\n",data);
-   fflush(stdout);
-   uData->buf_len = 0;
+   if (size*nmemb > (uData->buf_size - uData->buf_len))
+      len = uData->buf_size - uData->buf_len;
+
+   //printf("len %d\n", len);
+   //fflush(stdout);
+   memcpy(&uData->buf[uData->buf_len], data, len);
+   uData->buf_len += len;
    
    return size*nmemb;
    }
@@ -108,7 +113,6 @@ make_curl_request(char *url, char *postdata, char *certFilename, char *outBuf, i
          continue;
          }
 
-#if 0
       if (postdata) {
          if((ccode = curl_easy_setopt(gCurlCtx, CURLOPT_POSTFIELDS, postdata)) != CURLE_OK)
             {
@@ -116,7 +120,7 @@ make_curl_request(char *url, char *postdata, char *certFilename, char *outBuf, i
             continue;
             }
 
-         if((ccode = curl_easy_setopt(gCurlCtx, CURLOPT_GET, TRUE)) != CURLE_OK)
+         if((ccode = curl_easy_setopt(gCurlCtx, CURLOPT_PUT, TRUE)) != CURLE_OK)
             {
             printf("Error (line %d): %s\n", __LINE__, curl_easy_strerror(ccode));
             continue;
@@ -136,7 +140,6 @@ make_curl_request(char *url, char *postdata, char *certFilename, char *outBuf, i
          printf("Error (line %d): %s\n", __LINE__, curl_easy_strerror(ccode));
          continue;
          }
-#endif
 
       if((ccode = curl_easy_setopt(gCurlCtx, CURLOPT_USERAGENT, "Autoconf example")) != CURLE_OK)
          {
