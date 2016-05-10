@@ -8,6 +8,6 @@ mv configure.scan configure.ac
 
 aclocal
 autoconf
-gliblocalize
+glibtoolize
 automake --add-missing
 
