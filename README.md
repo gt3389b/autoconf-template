@@ -53,3 +53,9 @@ automake --add-missing
 make
 ```
 
+## Try it again
+Want to start over?  Then go back to the original clone
+```
+git clean -d -f
+```
+
